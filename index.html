@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Bắn Bóng Meme - Firebase</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: 20px auto;
+      background: #222;
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyARneh1WEzAB7ARCfMHSpsoq73aJNNw",
+      authDomain: "mememeoball.firebaseapp.com",
+      databaseURL: "https://mememeoball-default-rtdb.firebaseio.com",
+      projectId: "mememeoball",
+      storageBucket: "mememeoball.appspot.com",
+      messagingSenderId: "198915287931",
+      appId: "1:198915287931:web:31ae2fcdbd85e39cc7c92",
+      measurementId: "G-4EH00MQSNJ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
+</head>
+<body>
+  <h1>Bắn bóng meme online 🎯</h1>
+  <input id="nameInput" placeholder="Tên của bạn" />
+  <button onclick="save()">Gửi điểm</button>
+  <ul id="scoreList"></ul>
+
+  <script>
+    function save() {
+      const name = document.getElementById('nameInput').value.trim();
+      const score = Math.floor(Math.random() * 100); // giả lập điểm
+      if (!name) return alert("Nhập tên trước!");
+      db.ref('scores').push({ name, score, timestamp: Date.now() });
+      render();
+    }
+
+    function render() {
+      db.ref('scores').orderByChild('score').limitToLast(10).once('value', snap => {
+        const list = document.getElementById('scoreList');
+        list.innerHTML = '';
+        const data = [];
+        snap.forEach(child => data.push(child.val()));
+        data.sort((a, b) => b.score - a.score);
+        data.forEach(({ name, score }) => {
+          const li = document.createElement('li');
+          li.textContent = `${name}: ${score} điểm`;
+          list.appendChild(li);
+        });
+      });
+    }
+
+    window.onload = render;
+  </script>
+</body>
+</html>
